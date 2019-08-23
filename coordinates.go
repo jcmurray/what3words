@@ -6,6 +6,8 @@
 package what3words
 
 import (
+	"fmt"
+
 	"github.com/juju/errors"
 )
 
@@ -25,8 +27,8 @@ func NewCoordinates(lat float64, lon float64) (*Coordinates, error) {
 		return nil, errors.New("Latitude must be in range [-90, 90]")
 	}
 
-	if lon < -90.0 || lon > 90.0 {
-		return nil, errors.New("Longitude must be in range [-90, 90]")
+	if lon < -180.0 {
+		return nil, errors.New("Longitude must be in > -180")
 	}
 	return &Coordinates{
 		Latitude:  lat,
@@ -47,9 +49,14 @@ func (coord *Coordinates) SetLat(lat float64) error {
 // SetLon sets the Longitude in a Coordinates object.
 // verifying range of longitude is correct.
 func (coord *Coordinates) SetLon(lon float64) error {
-	if lon < -90.0 || lon > 90.0 {
-		return errors.New("Longitude must be in range [-90, 90]")
+	if lon < -180.0 {
+		return errors.New("Longitude must be > -180")
 	}
 	coord.Longitude = lon
 	return nil
+}
+
+// String returns a string suitable for a URL parameter.
+func (coord *Coordinates) String() string {
+	return fmt.Sprintf("%.13f,%6f", coord.Latitude, coord.Longitude)
 }

@@ -21,13 +21,13 @@ func TestNewCoordinates(t *testing.T) {
 		want    *Coordinates
 		wantErr bool
 	}{
-		{"1 Good Lat Lon", args{lat: 21.9292, lon: -10.282}, &Coordinates{Latitude: 21.9292, Longitude: -10.282}, false},
-		{"2 Bad Lat", args{lat: -121.9292, lon: -10.282}, nil, true},
-		{"3 Bad Lat", args{lat: 130.9292, lon: -10.282}, nil, true},
-		{"4 Bad Lon", args{lat: 21.9292, lon: -102.282}, nil, true},
-		{"5 Bad Lat", args{lat: -130.9292, lon: 10.282}, nil, true},
-		{"6 Bad Lon", args{lat: -21.9292, lon: 102.282}, nil, true},
-		{"7 Bad Lat lon", args{lat: 221.9292, lon: 102.282}, nil, true},
+		{"1 Lat Lon", args{lat: 21.9292, lon: -10.282}, &Coordinates{Latitude: 21.9292, Longitude: -10.282}, false},
+		{"2 Lat Lon", args{lat: -121.9292, lon: -10.282}, nil, true},
+		{"3 Lat Lon", args{lat: 130.9292, lon: -10.282}, nil, true},
+		{"4 Lat Lon", args{lat: 21.9292, lon: -102.282}, &Coordinates{Latitude: 21.9292, Longitude: -102.282}, false},
+		{"5 Lat Lon", args{lat: -130.9292, lon: 10.282}, nil, true},
+		{"6 Lat Lon", args{lat: -21.9292, lon: 102.282}, &Coordinates{Latitude: -21.9292, Longitude: 102.282}, false},
+		{"7 Lat Lon", args{lat: 221.9292, lon: 102.282}, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -57,9 +57,9 @@ func TestCoordinates_SetLat(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"1 Good Lat", fields{Latitude: 21.9292, Longitude: 0}, args{lat: 21.9292}, false},
-		{"2 Bad Lat", fields{Latitude: 0, Longitude: 0}, args{lat: 121.9292}, true},
-		{"3 Bad Lat", fields{Latitude: 0, Longitude: 0}, args{lat: -121.9292}, true},
+		{"1 SetLat", fields{Latitude: 21.9292, Longitude: 0}, args{lat: 21.9292}, false},
+		{"2 Set Lat", fields{Latitude: 0, Longitude: 0}, args{lat: 121.9292}, true},
+		{"3 Set Lat", fields{Latitude: 0, Longitude: 0}, args{lat: -121.9292}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -88,9 +88,10 @@ func TestCoordinates_SetLon(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"1 Good Lon", fields{Latitude: 0, Longitude: 21.9292}, args{lon: 21.9292}, false},
-		{"2 Bad Lon", fields{Latitude: 0, Longitude: 0}, args{lon: 121.9292}, true},
-		{"3 Bad Lon", fields{Latitude: 0, Longitude: 0}, args{lon: -121.9292}, true},
+		{"1 Set Lon", fields{Latitude: 0, Longitude: 21.9292}, args{lon: 21.9292}, false},
+		{"2 Set Lon", fields{Latitude: 0, Longitude: 121.9292}, args{lon: 121.9292}, false},
+		{"3 Set Lon", fields{Latitude: 0, Longitude: -121.9292}, args{lon: -121.9292}, false},
+		{"3 Set Lon", fields{Latitude: 0, Longitude: 0.0}, args{lon: -190.9292}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

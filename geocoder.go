@@ -80,3 +80,18 @@ func (geocoder *Geocoder) ConvertTo3wa(coord *Coordinates) (*ConvertTo3waRespons
 func (geocoder *Geocoder) ConvertToCoords(words string) (*ConvertToCoordsResponse, error) {
 	return ConvertToCoordsImpl(geocoder, words)
 }
+
+// AutoSuggest suggests a list of 3 word addresses from an imprecise input.
+func (geocoder *Geocoder) AutoSuggest(request *AutoSuggestRequest) (*AutoSuggestResponse, error) {
+	return AutoSuggestImpl(geocoder, request)
+}
+
+// GridSection returns a list of lines from a box.
+func (geocoder *Geocoder) GridSection(box *Box) (*GridSectionResponse, error) {
+	return GridSectionImpl(geocoder, box)
+}
+
+// AvailableLanguages returns a list of available languages.
+func (geocoder *Geocoder) AvailableLanguages() (*LanguagesResponse, error) {
+	return AvailableLanguagesImpl(geocoder)
+}

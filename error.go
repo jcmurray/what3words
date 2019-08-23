@@ -5,6 +5,12 @@
 
 package what3words
 
+import (
+	"fmt"
+
+	"github.com/juju/errors"
+)
+
 // ResponseError response from REST API.
 // Tags are used to map from the JSON response.
 type ResponseError struct {
@@ -31,4 +37,14 @@ func (respErr *ResponseError) Code() string {
 // Message of error message.
 func (respErr *ResponseError) Message() string {
 	return respErr.Error.Message
+}
+
+// String renders ResponseError in string form.
+func (respErr *ResponseError) String() string {
+	return fmt.Sprintf("%s %s", respErr.Code(), respErr.Message())
+}
+
+// AsError renders ResponseError in error form.
+func (respErr *ResponseError) AsError() error {
+	return errors.New(respErr.String())
 }
