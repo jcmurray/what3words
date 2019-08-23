@@ -9,7 +9,7 @@ package what3words
 // Tags are used to map from the JSON response.
 type Response struct {
 	Country      string       `json:"country"`
-	Square       *Square      `json:"square"`
+	Square       *Box         `json:"square"`
 	NearestPlace string       `json:"nearestPlace"`
 	Coordinates  *Coordinates `json:"coordinates"`
 	Words        string       `json:"words"`

@@ -5,29 +5,49 @@
 
 package what3words
 
-import "github.com/juju/errors"
+import (
+	"bytes"
+	"fmt"
 
-// Square defines an area bounded by two coordinates.
-// South West and North East points of the square
+	"github.com/juju/errors"
+)
+
+// Box defines an area bounded by two coordinates.
+// South West and North East points of the Box
 // define its extent.
 // // Tags are used to map from the JSON response.
-type Square struct {
+type Box struct {
 	SouthWest *Coordinates `json:"southwest"`
 	NorthEast *Coordinates `json:"northeast"`
 }
 
-// NewSquare returns a square region
-func NewSquare(sw *Coordinates, ne *Coordinates) (*Square, error) {
-	if sw.Latitude > ne.Latitude {
-		return nil, errors.New("Latitudes are in wrong order")
+// NewBox returns a Box region
+func NewBox(sw *Coordinates, ne *Coordinates) (*Box, error) {
+	latSpan := ne.Latitude - sw.Latitude
+	lonSpan := ne.Longitude - sw.Longitude
+	if latSpan < 0 {
+		return nil, errors.New("Latitude span is < 0")
 	}
-	if sw.Longitude > ne.Longitude {
-		return nil, errors.New("Longitudes are in wrong order")
+	if lonSpan < 0 {
+		return nil, errors.New("Longitudes span is < 0")
 	}
-	return &Square{
+	if latSpan > 180 {
+		return nil, errors.New("Latitude span is > 180")
+	}
+	if lonSpan > 360 {
+		return nil, errors.New("Longitude span is > 360")
+	}
+	return &Box{
 		SouthWest: sw,
 		NorthEast: ne,
 	}, nil
+}
+
+// String returns a string suitable for a URL parameter.
+func (box *Box) String() string {
+	return fmt.Sprintf("%.13f,%.13f,%.13f,%.13f",
+		box.SouthWest.Latitude, box.SouthWest.Longitude,
+		box.NorthEast.Latitude, box.NorthEast.Longitude)
 }
 
 // Circle defines an area bounded by a coordinate
@@ -49,6 +69,12 @@ func NewCircle(centre *Coordinates, radius float64) (*Circle, error) {
 	}, nil
 }
 
+// String returns a string suitable for a URL parameter.
+func (circle *Circle) String() string {
+	return fmt.Sprintf("%.13f,%.13f,%.13f",
+		circle.Centre.Latitude, circle.Centre.Longitude, circle.Radius)
+}
+
 // PolyGon defines an area bounded by a slice of coordinates.
 // Tags are used to map from the JSON response.
 type PolyGon struct {
@@ -60,4 +86,17 @@ func NewPolyGon(path []*Coordinates) *PolyGon {
 	return &PolyGon{
 		Path: path,
 	}
+}
+
+// String returns a string suitable for a URL parameter.
+func (polygon *PolyGon) String() string {
+	var buffer bytes.Buffer
+	var number = len(polygon.Path)
+	for index, coord := range polygon.Path {
+		buffer.WriteString(coord.String())
+		if index < number-1 {
+			buffer.WriteString(",")
+		}
+	}
+	return buffer.String()
 }

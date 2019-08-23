@@ -85,3 +85,8 @@ func (geocoder *Geocoder) ConvertToCoords(words string) (*ConvertToCoordsRespons
 func (geocoder *Geocoder) AutoSuggest(request *AutoSuggestRequest) (*AutoSuggestResponse, error) {
 	return AutoSuggestImpl(geocoder, request)
 }
+
+// GridSection perform REST API request over HTTP.
+func (geocoder *Geocoder) GridSection(box *Box) (*GridSectionResponse, error) {
+	return GridSectionImpl(geocoder, box)
+}

@@ -6,7 +6,6 @@
 package what3words
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -21,6 +20,7 @@ const (
 	convertTo3waPath         = "convert-to-3wa"
 	convertToCoordinatesPath = "convert-to-coordinates"
 	autoSuggestPath          = "autosuggest"
+	gridSectionPath          = "grid-section"
 )
 
 // ConvertTo3waImpl perform REST API request over HTTP.
@@ -34,7 +34,7 @@ func ConvertTo3waImpl(geo *Geocoder, coords *Coordinates) (*ConvertTo3waResponse
 	req.URL.Path = fmt.Sprintf("/%s/%s", geo.Version(), convertTo3waPath)
 	q := req.URL.Query()
 	q.Add("key", geo.APIKey())
-	q.Add("coordinates", fmt.Sprintf("%.6f,%.6f", coords.Latitude, coords.Longitude))
+	q.Add("coordinates", coords.String())
 	q.Add("format", geo.Format())
 	q.Add("language", geo.Language())
 	req.URL.RawQuery = q.Encode()
@@ -44,8 +44,8 @@ func ConvertTo3waImpl(geo *Geocoder, coords *Coordinates) (*ConvertTo3waResponse
 		return nil, errors.Annotate(err, "Unable to complete GET request for ConvertTo3wa()")
 	}
 
-	if resp.StatusCode != 200 && resp.StatusCode != 400 && resp.StatusCode != 401 {
-		return nil, errors.New(fmt.Sprintf("Status Code %d on GET request for ConvertTo3wa()", resp.StatusCode))
+	if httpError(resp) {
+		return nil, errors.New(fmt.Sprintf("Status '%s' on GET request for ConvertTo3wa()", resp.Status))
 	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)
@@ -57,12 +57,12 @@ func ConvertTo3waImpl(geo *Geocoder, coords *Coordinates) (*ConvertTo3waResponse
 	c3wResp := NewConvertTo3waResponse()
 	c3wErr := NewResponseError()
 
-	if resp.StatusCode != 200 {
+	if appError(resp) {
 		err = json.Unmarshal(respBody, c3wErr)
 		if err != nil {
-			return nil, errors.Annotate(err, "Unable to unmarshal error response for ConvertTo3wa()")
+			return nil, errors.Annotate(err, fmt.Sprintf("Status '%s' response for ConvertTo3wa()", resp.Status))
 		}
-		return nil, errors.New(fmt.Sprintf("%s %s", c3wErr.Code(), c3wErr.Message()))
+		return nil, c3wErr.AsError()
 	}
 
 	err = json.Unmarshal(respBody, c3wResp)
@@ -93,7 +93,7 @@ func ConvertToCoordsImpl(geo *Geocoder, words string) (*ConvertToCoordsResponse,
 		return nil, errors.Annotate(err, "Unable to complete GET request for ConvertToCoords()")
 	}
 
-	if resp.StatusCode != 200 && resp.StatusCode != 400 && resp.StatusCode != 401 {
+	if httpError(resp) {
 		return nil, errors.New(fmt.Sprintf("Status Code %d on GET request for ConvertToCoords()", resp.StatusCode))
 	}
 
@@ -106,12 +106,12 @@ func ConvertToCoordsImpl(geo *Geocoder, words string) (*ConvertToCoordsResponse,
 	coordsResp := NewConvertToCoordsResponse()
 	coordsErr := NewResponseError()
 
-	if resp.StatusCode != 200 {
+	if appError(resp) {
 		err = json.Unmarshal(respBody, coordsErr)
 		if err != nil {
-			return nil, errors.Annotate(err, "Unable to unmarshal error response for ConvertToCoords()")
+			return nil, errors.Annotate(err, fmt.Sprintf("Status '%s' response for ConvertToCoords()", resp.Status))
 		}
-		return nil, errors.New(fmt.Sprintf("%s %s", coordsErr.Code(), coordsErr.Message()))
+		return nil, coordsErr.AsError()
 	}
 
 	err = json.Unmarshal(respBody, coordsResp)
@@ -143,7 +143,7 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 		q.Add("n-results", fmt.Sprintf("%d", areq.NResults))
 	}
 	if areq.Focus != nil {
-		q.Add("focus", fmt.Sprintf("%.6f,%.6f", areq.Focus.Latitude, areq.Focus.Longitude))
+		q.Add("focus", fmt.Sprintf("%.13f,%.13f", areq.Focus.Latitude, areq.Focus.Longitude))
 	}
 	if areq.NFocusResults > 0 {
 		q.Add("n-focus-results", fmt.Sprintf("%d", areq.NFocusResults))
@@ -152,27 +152,13 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 		q.Add("clip-to-country", strings.Join(areq.ClipToCountry[:], ","))
 	}
 	if areq.ClipToBoundingBox != nil {
-		q.Add("clip-to-bounding-box", fmt.Sprintf("%.6f,%.6f,%.6f,%.6f",
-			areq.ClipToBoundingBox.SouthWest.Latitude,
-			areq.ClipToBoundingBox.SouthWest.Longitude,
-			areq.ClipToBoundingBox.NorthEast.Latitude,
-			areq.ClipToBoundingBox.NorthEast.Longitude))
+		q.Add("clip-to-bounding-box", areq.ClipToBoundingBox.String())
 	}
 	if areq.ClipToCircle != nil {
-		q.Add("clip-to-circle", fmt.Sprintf("%.6f,%.6f,%.6f",
-			areq.ClipToCircle.Centre.Latitude, areq.ClipToCircle.Centre.Longitude,
-			areq.ClipToCircle.Radius))
+		q.Add("clip-to-circle", areq.ClipToCircle.String())
 	}
 	if areq.ClipToPolyGon != nil {
-		var buffer bytes.Buffer
-		var number = len(areq.ClipToPolyGon.Path)
-		for index, coord := range areq.ClipToPolyGon.Path {
-			buffer.WriteString(fmt.Sprintf("%.6f,%6f", coord.Latitude, coord.Longitude))
-			if index < number-1 {
-				buffer.WriteString(",")
-			}
-		}
-		q.Add("clip-to-polygon", buffer.String())
+		q.Add("clip-to-polygon", areq.ClipToPolyGon.String())
 	}
 	if areq.InputType != "" {
 		q.Add("input-type", areq.InputType)
@@ -185,7 +171,7 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 		return nil, errors.Annotate(err, "Unable to complete GET request for AutoSuggest()")
 	}
 
-	if resp.StatusCode != 200 && resp.StatusCode != 400 && resp.StatusCode != 401 {
+	if httpError(resp) {
 		return nil, errors.New(fmt.Sprintf("Status Code %d on GET request for AutoSuggest()", resp.StatusCode))
 	}
 
@@ -198,12 +184,12 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 	autoResp := NewAutoSuggestResponse()
 	autoErr := NewResponseError()
 
-	if resp.StatusCode != 200 {
+	if appError(resp) {
 		err = json.Unmarshal(respBody, autoErr)
 		if err != nil {
-			return nil, errors.Annotate(err, "Unable to unmarshal error response for AutoSuggest()")
+			return nil, errors.Annotate(err, fmt.Sprintf("Status '%s' response for AutoSuggest()", resp.Status))
 		}
-		return nil, errors.New(fmt.Sprintf("%s %s", autoErr.Code(), autoErr.Message()))
+		return nil, autoErr.AsError()
 	}
 
 	err = json.Unmarshal(respBody, autoResp)
@@ -211,4 +197,64 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 		return nil, errors.Annotate(err, "Unable to unmarshal response for AutoSuggest()")
 	}
 	return autoResp, nil
+}
+
+// GridSectionImpl perform REST API request over HTTP.
+func GridSectionImpl(geo *Geocoder, box *Box) (*GridSectionResponse, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", geo.BaseURL().String(), nil)
+	if err != nil {
+		return nil, errors.Annotate(err, "Unable to build GET request for GridSelection()")
+	}
+	req.Header.Add("Accept", "application/json")
+	req.URL.Path = fmt.Sprintf("/%s/%s", geo.Version(), gridSectionPath)
+
+	req.Header.Add("Accept", "application/json")
+	req.URL.Path = fmt.Sprintf("/%s/%s", geo.Version(), gridSectionPath)
+	q := req.URL.Query()
+	q.Add("key", geo.APIKey())
+	q.Add("format", geo.Format())
+	q.Add("language", geo.Language())
+	q.Add("bounding-box", box.String())
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Annotate(err, "Unable to complete GET request for GridSection()")
+	}
+
+	if httpError(resp) {
+		return nil, errors.New(fmt.Sprintf("Status Code %d on GET request for GridSection()", resp.StatusCode))
+	}
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Annotate(err, "Unable to read Body in response for GridSection()")
+	}
+	defer resp.Body.Close()
+
+	gridResp := NewGridSectionResponse()
+	gridErr := NewResponseError()
+
+	if appError(resp) {
+		err = json.Unmarshal(respBody, gridErr)
+		if err != nil {
+			return nil, errors.Annotate(err, fmt.Sprintf("Status '%s' response for GridSection()", resp.Status))
+		}
+		return nil, gridErr.AsError()
+	}
+
+	err = json.Unmarshal(respBody, gridResp)
+	if err != nil {
+		return nil, errors.Annotate(err, "Unable to unmarshal response for GridSection()")
+	}
+	return gridResp, nil
+}
+
+func httpError(resp *http.Response) bool {
+	return (resp.StatusCode != 200 && (resp.StatusCode < 400 || 499 < resp.StatusCode))
+}
+
+func appError(resp *http.Response) bool {
+	return (400 <= resp.StatusCode && resp.StatusCode <= 499)
 }

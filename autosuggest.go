@@ -15,7 +15,7 @@ type AutoSuggestRequest struct {
 	Focus             *Coordinates
 	NFocusResults     int
 	ClipToCountry     []string
-	ClipToBoundingBox *Square
+	ClipToBoundingBox *Box
 	ClipToCircle      *Circle
 	ClipToPolyGon     *PolyGon
 	InputType         string
@@ -83,7 +83,7 @@ func (ar *AutoSuggestRequest) SetClipToCountry(countries []string) {
 }
 
 // SetClipToBoundingBox sets the cliping box.
-func (ar *AutoSuggestRequest) SetClipToBoundingBox(box *Square) {
+func (ar *AutoSuggestRequest) SetClipToBoundingBox(box *Box) {
 	ar.ClipToBoundingBox = box
 }
 
