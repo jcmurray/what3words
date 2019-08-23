@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/juju/errors"
+	geojson "github.com/paulmach/go.geojson"
 )
 
 const (
@@ -25,7 +26,7 @@ const (
 )
 
 // ConvertTo3waImpl perform REST API request over HTTP.
-func ConvertTo3waImpl(geo *Geocoder, coords *Coordinates) (*ConvertTo3waResponse, error) {
+func ConvertTo3waImpl(geo *Geocoder, coords *Coordinates) (interface{}, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", geo.BaseURL().String(), nil)
 	if err != nil {
@@ -66,6 +67,15 @@ func ConvertTo3waImpl(geo *Geocoder, coords *Coordinates) (*ConvertTo3waResponse
 		return nil, c3wErr.AsError()
 	}
 
+	if geo.IsFormatGeoJSON() {
+		fc := geojson.NewFeatureCollection()
+		err = json.Unmarshal(respBody, fc)
+		if err != nil {
+			return nil, errors.Annotate(err, "Unable to unmarshal GeoJSON response for ConvertTo3wa()")
+		}
+		return fc, nil
+	}
+
 	err = json.Unmarshal(respBody, c3wResp)
 	if err != nil {
 		return nil, errors.Annotate(err, "Unable to unmarshal response for ConvertTo3wa()")
@@ -74,7 +84,7 @@ func ConvertTo3waImpl(geo *Geocoder, coords *Coordinates) (*ConvertTo3waResponse
 }
 
 // ConvertToCoordsImpl perform REST API request over HPTTP.
-func ConvertToCoordsImpl(geo *Geocoder, words string) (*ConvertToCoordsResponse, error) {
+func ConvertToCoordsImpl(geo *Geocoder, words string) (interface{}, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", geo.BaseURL().String(), nil)
 	if err != nil {
@@ -115,6 +125,15 @@ func ConvertToCoordsImpl(geo *Geocoder, words string) (*ConvertToCoordsResponse,
 		return nil, coordsErr.AsError()
 	}
 
+	if geo.IsFormatGeoJSON() {
+		fc := geojson.NewFeatureCollection()
+		err = json.Unmarshal(respBody, fc)
+		if err != nil {
+			return nil, errors.Annotate(err, "Unable to unmarshal GeoJSON response for ConvertToCoords()")
+		}
+		return fc, nil
+	}
+
 	err = json.Unmarshal(respBody, coordsResp)
 	if err != nil {
 		return nil, errors.Annotate(err, "Unable to unmarshal response for ConvertToCoords()")
@@ -134,7 +153,6 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 
 	q := req.URL.Query()
 	q.Add("key", geo.APIKey())
-	q.Add("format", geo.Format())
 	q.Add("language", geo.Language())
 
 	if areq.Input != "" {
@@ -201,7 +219,7 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 }
 
 // GridSectionImpl perform REST API request over HTTP.
-func GridSectionImpl(geo *Geocoder, box *Box) (*GridSectionResponse, error) {
+func GridSectionImpl(geo *Geocoder, box *Box) (interface{}, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", geo.BaseURL().String(), nil)
 	if err != nil {
@@ -243,6 +261,15 @@ func GridSectionImpl(geo *Geocoder, box *Box) (*GridSectionResponse, error) {
 			return nil, errors.Annotate(err, fmt.Sprintf("Status '%s' response for GridSection()", resp.Status))
 		}
 		return nil, gridErr.AsError()
+	}
+
+	if geo.IsFormatGeoJSON() {
+		fc := geojson.NewFeatureCollection()
+		err = json.Unmarshal(respBody, fc)
+		if err != nil {
+			return nil, errors.Annotate(err, "Unable to unmarshal GeoJSON response for GridSection()")
+		}
+		return fc, nil
 	}
 
 	err = json.Unmarshal(respBody, gridResp)

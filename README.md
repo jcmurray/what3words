@@ -49,7 +49,7 @@ func ExampleConvertToCoords() {
 }
 
 func ExampleAutoSuggest() {
-    api := what3words.NewGeocoder("[MK_API_KEY]")
+        api := what3words.NewGeocoder("[MK_API_KEY]")
         autoreq := what3words.NewAutoSuggestRequest("plan.clips.a")
         coords, err := what3words.NewCoordinates(51.520847, -0.195521)
 	autoreq.SetFocus(coords)
@@ -95,6 +95,7 @@ func ExampleAutoSuggest() {
 }
 
 func ExampleGridSelect() {
+        api := what3words.NewGeocoder("[MK_API_KEY]")
         coord1, _ := w3w.NewCoordinates(52.207988, 0.116126)
 	coord2, _ := w3w.NewCoordinates(52.208867, 0.117540)
 	box, _ := w3w.NewBox(coord1, coord2)
@@ -123,6 +124,7 @@ func ExampleGridSelect() {
 }
 
 func ExampleAvailableLanguages() {
+        api := what3words.NewGeocoder("[MK_API_KEY]")
 	resp, err := api.AvailableLanguages()
 	if err != nil {
 		fmt.Printf("Error: %s", err)
@@ -145,5 +147,58 @@ func ExampleAvailableLanguages() {
         // Code       : hi
         // Native Name: हिन्दी
         // ======================        
+}
+
+func ExampleConvertTo3waGeoJSON() {
+        api := what3words.NewGeocoder("[MK_API_KEY]")
+        coords, err := what3words.NewCoordinates(51.520847, -0.195521)
+        if err != nil {
+                panic(err)
+        }
+	resp, err := api.ConvertTo3waGeoJSON(coords)
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+	fmt.Printf("What3Names: %s\n", resp.Features[0].Properties["words"])
+        // Output: What3Names: filled.count.soap
+}
+
+func ExampleConvertToCoordsGeoJSON() {
+        api := what3words.NewGeocoder("[MK_API_KEY]")
+	resp, err := api.ConvertToCoordsGeoJSON("filled.count.soap")
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+	coordsGeo := resp.Features[0].Geometry.Point
+	fmt.Printf("Coords - Lat: %.6f, Lon: %0.6f\n", coordsGeo[1], coordsGeo[0])
+	// Output: Coords - Lat: 51.520847, Lon: -0.195521
+}
+
+func ExampleGridSelectGeoJSON() {
+        api := what3words.NewGeocoder("[MK_API_KEY]")
+        coord1, _ := w3w.NewCoordinates(52.207988, 0.116126)
+	coord2, _ := w3w.NewCoordinates(52.208867, 0.117540)
+	box, _ := w3w.NewBox(coord1, coord2)
+	respGeo, err := api.GridSectionGeoJSON(box)
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+	fmt.Printf("======================\n")
+	for _, line := range respGeo.Features[0].Geometry.MultiLineString {
+		fmt.Printf("Line Start: %.13f, %.13f\n", line[0][1], line[0][0])
+		fmt.Printf("Line End  : %.13f, %.13f\n", line[1][1], line[1][0])
+		fmt.Printf("======================\n")
+	}
+        // Output:
+        // ======================
+        // Line Start: 52.2080099180681, 0.1161260000000
+        // Line End  : 52.2080099180681, 0.1175400000000
+        // ======================
+        // Line Start: 52.2080368693402, 0.1161260000000
+        // Line End  : 52.2080368693402, 0.1175400000000
+        // ======================
 }
 ```
