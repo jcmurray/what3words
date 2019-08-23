@@ -21,6 +21,7 @@ const (
 	convertToCoordinatesPath = "convert-to-coordinates"
 	autoSuggestPath          = "autosuggest"
 	gridSectionPath          = "grid-section"
+	availableLanguagesPath   = "available-languages"
 )
 
 // ConvertTo3waImpl perform REST API request over HTTP.
@@ -249,6 +250,52 @@ func GridSectionImpl(geo *Geocoder, box *Box) (*GridSectionResponse, error) {
 		return nil, errors.Annotate(err, "Unable to unmarshal response for GridSection()")
 	}
 	return gridResp, nil
+}
+
+// AvailableLanguagesImpl perform REST API request over HTTP.
+func AvailableLanguagesImpl(geo *Geocoder) (*LanguagesResponse, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", geo.BaseURL().String(), nil)
+	if err != nil {
+		return nil, errors.Annotate(err, "Unable to build GET request for AvailableLanguages()")
+	}
+	req.Header.Add("Accept", "application/json")
+	req.URL.Path = fmt.Sprintf("/%s/%s", geo.Version(), availableLanguagesPath)
+	q := req.URL.Query()
+	q.Add("key", geo.APIKey())
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Annotate(err, "Unable to complete GET request for AvailableLanguages()")
+	}
+
+	if httpError(resp) {
+		return nil, errors.New(fmt.Sprintf("Status '%s' on GET request for AvailableLanguages()", resp.Status))
+	}
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Annotate(err, "Unable to read Body in response for AvailableLanguages()")
+	}
+	defer resp.Body.Close()
+
+	langResp := NewLanguagesResponse()
+	langErr := NewResponseError()
+
+	if appError(resp) {
+		err = json.Unmarshal(respBody, langErr)
+		if err != nil {
+			return nil, errors.Annotate(err, fmt.Sprintf("Status '%s' response for AvailableLanguages()", resp.Status))
+		}
+		return nil, langErr.AsError()
+	}
+
+	err = json.Unmarshal(respBody, langResp)
+	if err != nil {
+		return nil, errors.Annotate(err, "Unable to unmarshal response for AvailableLanguages()")
+	}
+	return langResp, nil
 }
 
 func httpError(resp *http.Response) bool {

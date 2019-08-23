@@ -102,7 +102,7 @@ func ExampleGridSelect() {
 	if err != nil {
 		fmt.Printf("Error: %s", err)
 		return
-	} //2084411384217
+	}
 	fmt.Printf("======================\n")
 	for _, line := range resp.Lines {
 		fmt.Printf("Line Start: %.13f, %.13f\n", line.Start.Latitude, line.Start.Longitude)
@@ -120,5 +120,30 @@ func ExampleGridSelect() {
         // Line Start: 52.2080638206123, 0.1161260000000
         // Line End  : 52.2080638206123, 0.1175400000000
         // ...
+}
+
+func ExampleAvailableLanguages() {
+	resp, err := api.AvailableLanguages()
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+	fmt.Printf("======================\n")
+	for _, language := range resp.Languages {
+		fmt.Printf("Name       : %s\n", language.Name)
+		fmt.Printf("Code       : %s\n", language.Code)
+		fmt.Printf("Native Name: %s\n", language.NativeName)
+		fmt.Printf("======================\n")
+	}
+        // Output:
+        // ======================
+        // Name       : German
+        // Code       : de
+        // Native Name: Deutsch
+        // ======================
+        // Name       : Hindi
+        // Code       : hi
+        // Native Name: हिन्दी
+        // ======================        
 }
 ```

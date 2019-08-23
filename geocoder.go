@@ -86,7 +86,12 @@ func (geocoder *Geocoder) AutoSuggest(request *AutoSuggestRequest) (*AutoSuggest
 	return AutoSuggestImpl(geocoder, request)
 }
 
-// GridSection perform REST API request over HTTP.
+// GridSection returns a list of lines from a box.
 func (geocoder *Geocoder) GridSection(box *Box) (*GridSectionResponse, error) {
 	return GridSectionImpl(geocoder, box)
+}
+
+// AvailableLanguages returns a list of available languages.
+func (geocoder *Geocoder) AvailableLanguages() (*LanguagesResponse, error) {
+	return AvailableLanguagesImpl(geocoder)
 }
