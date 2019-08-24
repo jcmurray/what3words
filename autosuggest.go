@@ -5,7 +5,17 @@
 
 package what3words
 
-import "github.com/juju/errors"
+import (
+	"fmt"
+
+	"github.com/juju/errors"
+)
+
+const (
+	inputText  = "text"
+	vconHybrid = "vocon-hybrid"
+	nmdpAsr    = "nmdp-asr"
+)
 
 // AutoSuggestRequest response from REST API.
 // Tags are used to map from the JSON response.
@@ -98,8 +108,18 @@ func (ar *AutoSuggestRequest) SetClipToPolyGon(polygon *PolyGon) {
 }
 
 // SetInputType sets the Input type.
-func (ar *AutoSuggestRequest) SetInputType(input string) {
+func (ar *AutoSuggestRequest) SetInputType(input string) error {
+	if input != vconHybrid && input != inputText && input != nmdpAsr {
+		return errors.New(fmt.Sprintf("Inout type must be one of '%s' '%s' or '%s'",
+			inputText, vconHybrid, nmdpAsr))
+	}
 	ar.InputType = input
+	return nil
+}
+
+// InputTypeIsText sets the Input type.
+func (ar *AutoSuggestRequest) InputTypeIsText() bool {
+	return (ar.InputType == inputText)
 }
 
 // SetPreferLand sets the PeferLand type.

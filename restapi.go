@@ -153,8 +153,9 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 
 	q := req.URL.Query()
 	q.Add("key", geo.APIKey())
-	q.Add("language", geo.Language())
-
+	if !areq.InputTypeIsText() {
+		q.Add("language", geo.Language())
+	}
 	if areq.Input != "" {
 		q.Add("input", areq.Input)
 	}

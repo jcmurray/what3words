@@ -138,6 +138,11 @@ func (geocoder *Geocoder) ConvertToCoordsGeoJSON(words string) (*geojson.Feature
 
 // AutoSuggest suggests a list of 3 word addresses from an imprecise input.
 func (geocoder *Geocoder) AutoSuggest(request *AutoSuggestRequest) (*AutoSuggestResponse, error) {
+	if !request.InputTypeIsText() {
+		if geocoder.Language() == "" {
+			return nil, errors.New("Non-text input types must have language specified")
+		}
+	}
 	geocoder.SetFormatJSON()
 	return AutoSuggestImpl(geocoder, request)
 }
