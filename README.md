@@ -3,6 +3,9 @@
 
 This project is licensed under the terms of the MIT license.
 
+It provides a simple Go wrapper for the What3words V3 API.
+
+# What3words [![GoDoc](https://godoc.org/github.com/jcmurray/what3words?status.svg)](https://godoc.org/github.com/jcmurray/what3words)
 Supports:
 
 - What3words API V3
