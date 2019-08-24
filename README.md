@@ -200,5 +200,55 @@ func ExampleGridSelectGeoJSON() {
         // Line Start: 52.2080368693402, 0.1161260000000
         // Line End  : 52.2080368693402, 0.1175400000000
         // ======================
+
+func ExampleAutoSuggestVoice() {
+        api := what3words.NewGeocoder("[MK_API_KEY]")
+
+        // inputVoice is JSON output from Vocon Hybrid vocoder
+
+	inputVoice := `{"_isInGrammar":"yes","_isSpeech":"yes","_hypotheses":[{"_score":342516,"_startRule":"whatthreewordsgrammar#_main_","_conf":6546,"_endTimeMs":6360,"_beginTimeMs":1570,"_lmScore":300,"_items":[{"_type":"terminal","_score":34225,"_orthography":"tend","_conf":6964,"_endTimeMs":2250,"_beginTimeMs":1580},{"_type":"terminal","_score":47670,"_orthography":"artichokes","_conf":7176,"_endTimeMs":3180,"_beginTimeMs":2260},{"_type":"terminal","_score":43800,"_orthography":"poached","_conf":6181,"_endTimeMs":4060,"_beginTimeMs":3220}]},{"_score":342631,"_startRule":"whatthreewordsgrammar#_main_","_conf":6498,"_endTimeMs":6360,"_beginTimeMs":1570,"_lmScore":300,"_items":[{"_type":"terminal","_score":34340,"_orthography":"tent","_conf":6772,"_endTimeMs":2250,"_beginTimeMs":1580},{"_type":"terminal","_score":47670,"_orthography":"artichokes","_conf":7176,"_endTimeMs":3180,"_beginTimeMs":2260},{"_type":"terminal","_score":43800,"_orthography":"poached","_conf":6181,"_endTimeMs":4060,"_beginTimeMs":3220}]},{"_score":342668,"_startRule":"whatthreewordsgrammar#_main_","_conf":6474,"_endTimeMs":6360,"_beginTimeMs":1570,"_lmScore":300,"_items":[{"_type":"terminal","_score":34225,"_orthography":"tend","_conf":6964,"_endTimeMs":2250,"_beginTimeMs":1580},{"_type":"terminal","_score":47670,"_orthography":"artichokes","_conf":7176,"_endTimeMs":3180,"_beginTimeMs":2260},{"_type":"terminal","_score":41696,"_orthography":"perch","_conf":5950,"_endTimeMs":4020,"_beginTimeMs":3220}]},{"_score":342670,"_startRule":"whatthreewordsgrammar#_main_","_conf":6474,"_endTimeMs":6360,"_beginTimeMs":1570,"_lmScore":300,"_items":[{"_type":"terminal","_score":34379,"_orthography":"tinge","_conf":6705,"_endTimeMs":2250,"_beginTimeMs":1580},{"_type":"terminal","_score":47670,"_orthography":"artichokes","_conf":7176,"_endTimeMs":3180,"_beginTimeMs":2260},{"_type":"terminal","_score":43800,"_orthography":"poached","_conf":6181,"_endTimeMs":4060,"_beginTimeMs":3220}]},{"_score":342783,"_startRule":"whatthreewordsgrammar#_main_","_conf":6426,"_endTimeMs":6360,"_beginTimeMs":1570,"_lmScore":300,"_items":[{"_type":"terminal","_score":34340,"_orthography":"tent","_conf":6772,"_endTimeMs":2250,"_beginTimeMs":1580},{"_type":"terminal","_score":47670,"_orthography":"artichokes","_conf":7176,"_endTimeMs":3180,"_beginTimeMs":2260},{"_type":"terminal","_score":41696,"_orthography":"perch","_conf":5950,"_endTimeMs":4020,"_beginTimeMs":3220}]},{"_score":342822,"_startRule":"whatthreewordsgrammar#_main_","_conf":6402,"_endTimeMs":6360,"_beginTimeMs":1570,"_lmScore":300,"_items":[{"_type":"terminal","_score":34379,"_orthography":"tinge","_conf":6705,"_endTimeMs":2250,"_beginTimeMs":1580},{"_type":"terminal","_score":47670,"_orthography":"artichokes","_conf":7176,"_endTimeMs":3180,"_beginTimeMs":2260},{"_type":"terminal","_score":41696,"_orthography":"perch","_conf":5950,"_endTimeMs":4020,"_beginTimeMs":3220}]}],"_resultType":"NBest"}`
+	autoreq := w3w.NewAutoSuggestRequest(inputVoice)
+	autoreq.SetFocus(coords)
+	autoreq.SetInputType("vocon-hybrid")
+
+	resp, err := api.AutoSuggest(autoreq1)
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+	fmt.Printf("======================\n")
+	for _, suggestion := range resp.Suggestions {
+		fmt.Printf("Country: %s\n", suggestion.Country)
+		fmt.Printf("Nearest Place: %s\n", suggestion.NearestPlace)
+		fmt.Printf("Words: %s\n", suggestion.Words)
+		fmt.Printf("Distance to Focus km: %.3f\n", suggestion.DistanceToFocusKm)
+		fmt.Printf("Rank: %d\n", suggestion.Rank)
+		fmt.Printf("Language: %s\n", suggestion.Language)
+		fmt.Printf("======================\n")
+	}
+        // Output:
+        // ======================
+        // Country: ZZ
+        // Nearest Place: Angaur State, Angaur
+        // Words: tend.artichokes.poached
+        // Distance to Focus km: 12220.000
+        // Rank: 1
+        // Language: en
+        // ======================
+        // Country: ZZ
+        // Nearest Place: Berbera, Woqooyi Galbeed
+        // Words: tent.artichokes.poached
+        // Distance to Focus km: 6112.000
+        // Rank: 2
+        // Language: en
+        // ======================
+        // Country: CA
+        // Nearest Place: Rouyn-Noranda, Quebec
+        // Words: tend.artichokes.perch
+        // Distance to Focus km: 5382.000
+        // Rank: 3
+        // Language: en
+        // ======================
+
 }
 ```
