@@ -59,6 +59,16 @@ func (geocoder *Geocoder) BaseURL() *url.URL {
 	return geocoder.baseURL
 }
 
+// SetBaseURL set the base URL for a Geocoder.
+func (geocoder *Geocoder) SetBaseURL(urlString string) error {
+	newURL, err := url.Parse(urlString)
+	if err != nil {
+		return err
+	}
+	geocoder.baseURL = newURL
+	return nil
+}
+
 // Format get the Format from a Geocoder.
 func (geocoder *Geocoder) Format() string {
 	return geocoder.format
