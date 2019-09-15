@@ -12,15 +12,6 @@ import (
 	"github.com/juju/errors"
 )
 
-// Box defines an area bounded by two coordinates.
-// South West and North East points of the Box
-// define its extent.
-// // Tags are used to map from the JSON response.
-type Box struct {
-	SouthWest *Coordinates `json:"southwest"`
-	NorthEast *Coordinates `json:"northeast"`
-}
-
 // NewBox returns a Box region
 func NewBox(sw *Coordinates, ne *Coordinates) (*Box, error) {
 	latSpan := ne.Latitude - sw.Latitude
@@ -50,14 +41,6 @@ func (box *Box) String() string {
 		box.NorthEast.Latitude, box.NorthEast.Longitude)
 }
 
-// Circle defines an area bounded by a coordinate
-// and a radius.
-// Tags are used to map from the JSON response.
-type Circle struct {
-	Centre *Coordinates `json:"centre"`
-	Radius float64      `json:"radius"`
-}
-
 // NewCircle returns a circular region
 func NewCircle(centre *Coordinates, radius float64) (*Circle, error) {
 	if radius <= 0.0 {
@@ -73,12 +56,6 @@ func NewCircle(centre *Coordinates, radius float64) (*Circle, error) {
 func (circle *Circle) String() string {
 	return fmt.Sprintf("%.13f,%.13f,%.13f",
 		circle.Centre.Latitude, circle.Centre.Longitude, circle.Radius)
-}
-
-// PolyGon defines an area bounded by a slice of coordinates.
-// Tags are used to map from the JSON response.
-type PolyGon struct {
-	Path []*Coordinates `json:"path"`
 }
 
 // NewPolyGon returns a polygon region

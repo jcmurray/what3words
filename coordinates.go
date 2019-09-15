@@ -11,13 +11,6 @@ import (
 	"github.com/juju/errors"
 )
 
-// Coordinates struct with latitude and longitude.
-// Tags are used to map from the JSON response.
-type Coordinates struct {
-	Latitude  float64 `json:"lat"`
-	Longitude float64 `json:"lng"`
-}
-
 // NewCoordinates return a new Coordinates object.
 // constructed from latitude and longitude values.
 // It verifies range of latitude and longitude are correct.

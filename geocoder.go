@@ -13,21 +13,9 @@ import (
 	geojson "github.com/paulmach/go.geojson"
 )
 
-const (
-	baseURL         = "https://api.what3words.com"
-	formatJSON      = "json"
-	formatGeoJSON   = "geojson"
-	defaultLanguage = "en"
-	defaultVersion  = "v3"
-)
-
-// Geocoder struct with information needed to make HTTP API calls.
-type Geocoder struct {
-	apiKey   string
-	baseURL  *url.URL
-	format   string
-	language string
-	version  string
+// PackageVersion returns Git version tag of current package
+func PackageVersion() string {
+	return packageVersionString
 }
 
 // NewGeocoder return a new Geocoder.

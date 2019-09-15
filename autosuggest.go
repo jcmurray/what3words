@@ -11,27 +11,6 @@ import (
 	"github.com/juju/errors"
 )
 
-const (
-	inputText  = "text"
-	vconHybrid = "vocon-hybrid"
-	nmdpAsr    = "nmdp-asr"
-)
-
-// AutoSuggestRequest response from REST API.
-// Tags are used to map from the JSON response.
-type AutoSuggestRequest struct {
-	Input             string
-	NResults          int
-	Focus             *Coordinates
-	NFocusResults     int
-	ClipToCountry     []string
-	ClipToBoundingBox *Box
-	ClipToCircle      *Circle
-	ClipToPolyGon     *PolyGon
-	InputType         string
-	PreferLand        bool
-}
-
 // NewAutoSuggestRequest instantiate a AutoSuggestRequest object.
 func NewAutoSuggestRequest(input string) *AutoSuggestRequest {
 	return &AutoSuggestRequest{
@@ -40,23 +19,6 @@ func NewAutoSuggestRequest(input string) *AutoSuggestRequest {
 		NFocusResults: 3,
 		PreferLand:    false,
 	}
-}
-
-// AutoSuggestResponse response from REST API.
-// Tags are used to map from the JSON response.
-type AutoSuggestResponse struct {
-	Suggestions []*Suggestion `json:"suggestions"`
-}
-
-// Suggestion response from REST API.
-// Tags are used to map from the JSON response.
-type Suggestion struct {
-	Country           string  `json:"country"`
-	NearestPlace      string  `json:"nearestPlace"`
-	Words             string  `json:"words"`
-	DistanceToFocusKm float64 `json:"distanceToFocusKm"`
-	Rank              int     `json:"rank"`
-	Language          string  `json:"language"`
 }
 
 // NewAutoSuggestResponse instantiate a AutoSuggestResponse object.

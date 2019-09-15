@@ -11,19 +11,6 @@ import (
 	"github.com/juju/errors"
 )
 
-// ResponseError response from REST API.
-// Tags are used to map from the JSON response.
-type ResponseError struct {
-	Error ErrorDetails `json:"error"`
-}
-
-// ErrorDetails response from REST API.
-// Tags are used to map from the JSON response.
-type ErrorDetails struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-}
-
 // NewResponseError instantiate a ResponseError object.
 func NewResponseError() *ResponseError {
 	return &ResponseError{}
