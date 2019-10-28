@@ -110,6 +110,9 @@ func (geocoder *Geocoder) Version() string {
 func (geocoder *Geocoder) ConvertTo3wa(coord *Coordinates) (*ConvertTo3waResponse, error) {
 	geocoder.SetFormatJSON()
 	resp, err := ConvertTo3waImpl(geocoder, coord)
+	if err != nil {
+		return nil, err
+	}
 	return resp.(*ConvertTo3waResponse), err
 }
 
@@ -117,6 +120,9 @@ func (geocoder *Geocoder) ConvertTo3wa(coord *Coordinates) (*ConvertTo3waRespons
 func (geocoder *Geocoder) ConvertTo3waGeoJSON(coord *Coordinates) (*geojson.FeatureCollection, error) {
 	geocoder.SetFormatGeoJSON()
 	resp, err := ConvertTo3waImpl(geocoder, coord)
+	if err != nil {
+		return nil, err
+	}
 	return resp.(*geojson.FeatureCollection), err
 }
 
@@ -124,6 +130,9 @@ func (geocoder *Geocoder) ConvertTo3waGeoJSON(coord *Coordinates) (*geojson.Feat
 func (geocoder *Geocoder) ConvertToCoords(words string) (*ConvertToCoordsResponse, error) {
 	geocoder.SetFormatJSON()
 	resp, err := ConvertToCoordsImpl(geocoder, words)
+	if err != nil {
+		return nil, err
+	}
 	return resp.(*ConvertToCoordsResponse), err
 }
 
@@ -131,6 +140,9 @@ func (geocoder *Geocoder) ConvertToCoords(words string) (*ConvertToCoordsRespons
 func (geocoder *Geocoder) ConvertToCoordsGeoJSON(words string) (*geojson.FeatureCollection, error) {
 	geocoder.SetFormatGeoJSON()
 	resp, err := ConvertToCoordsImpl(geocoder, words)
+	if err != nil {
+		return nil, err
+	}
 	return resp.(*geojson.FeatureCollection), err
 }
 
@@ -149,6 +161,9 @@ func (geocoder *Geocoder) AutoSuggest(request *AutoSuggestRequest) (*AutoSuggest
 func (geocoder *Geocoder) GridSection(box *Box) (*GridSectionResponse, error) {
 	geocoder.SetFormatJSON()
 	resp, err := GridSectionImpl(geocoder, box)
+	if err != nil {
+		return nil, err
+	}
 	return resp.(*GridSectionResponse), err
 }
 
@@ -156,6 +171,9 @@ func (geocoder *Geocoder) GridSection(box *Box) (*GridSectionResponse, error) {
 func (geocoder *Geocoder) GridSectionGeoJSON(box *Box) (*geojson.FeatureCollection, error) {
 	geocoder.SetFormatGeoJSON()
 	resp, err := GridSectionImpl(geocoder, box)
+	if err != nil {
+		return nil, err
+	}
 	return resp.(*geojson.FeatureCollection), err
 }
 
