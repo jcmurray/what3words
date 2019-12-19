@@ -214,7 +214,7 @@ func ExampleAutoSuggestVoice() {
 	autoreq.SetFocus(coords)
 	autoreq.SetInputType("vocon-hybrid")
 
-	resp, err := api.AutoSuggest(autoreq1)
+	resp, err := api.AutoSuggest(autoreq)
 	if err != nil {
 		fmt.Printf("Error: %s", err)
 		return
