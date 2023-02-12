@@ -8,7 +8,7 @@ package what3words
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -50,7 +50,7 @@ func ConvertTo3waImpl(geo *Geocoder, coords *Coordinates) (interface{}, error) {
 		return nil, errors.New(fmt.Sprintf("Status '%s' on GET request for ConvertTo3wa()", resp.Status))
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Annotate(err, "Unable to read Body in response for ConvertTo3wa()")
 	}
@@ -108,7 +108,7 @@ func ConvertToCoordsImpl(geo *Geocoder, words string) (interface{}, error) {
 		return nil, errors.New(fmt.Sprintf("Status Code %d on GET request for ConvertToCoords()", resp.StatusCode))
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Annotate(err, "Unable to read Body in response for ConvertToCoords()")
 	}
@@ -195,7 +195,7 @@ func AutoSuggestImpl(geo *Geocoder, areq *AutoSuggestRequest) (*AutoSuggestRespo
 		return nil, errors.New(fmt.Sprintf("Status Code %d on GET request for AutoSuggest()", resp.StatusCode))
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Annotate(err, "Unable to read Body in response for AutoSuggest()")
 	}
@@ -247,7 +247,7 @@ func GridSectionImpl(geo *Geocoder, box *Box) (interface{}, error) {
 		return nil, errors.New(fmt.Sprintf("Status Code %d on GET request for GridSection()", resp.StatusCode))
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Annotate(err, "Unable to read Body in response for GridSection()")
 	}
@@ -302,7 +302,7 @@ func AvailableLanguagesImpl(geo *Geocoder) (*LanguagesResponse, error) {
 		return nil, errors.New(fmt.Sprintf("Status '%s' on GET request for AvailableLanguages()", resp.Status))
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Annotate(err, "Unable to read Body in response for AvailableLanguages()")
 	}
