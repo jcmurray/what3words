@@ -6,5 +6,5 @@
 package what3words
 
 const (
-	packageVersionString = "v0.3.3"
+	packageVersionString = "v0.3.5"
 )
